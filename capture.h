@@ -4,10 +4,14 @@
 
 typedef struct {
 	char name[10];
-	unsigned int samplerate;
-	unsigned int channels;
+	unsigned samplerate;
+	unsigned channels;
 } capHW;
 
-int captureSetUp(snd_pcm_t *capture_handle, capHW const &hw);
+static capHW hw;
+
+void loadCapSettings(const char name[], const unsigned sr, const unsigned c);
+
+// int captureSetUp(snd_pcm_t *capture_handle);
 
 #endif

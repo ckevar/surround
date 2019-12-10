@@ -1,9 +1,15 @@
 #include "capture.h"
 
-int captureSetUp(snd_pcm_t *capture_handle, capHW const &hw); {
+void loadSettings(const char name[], const unsigned sr, const unsigned c){
+	strcpy(hw.name, name, 10);
+	hw.samplerate = sr;
+	hw.channel = c;
+}
+/*
+int captureSetUp(snd_pcm_t *capture_handle); {
 	int err;
 	snd_pcm_hw_params_t *hw_params;
-	printf("HW: %s\n", hw->name);
+	printf("HW: %s\n", hw.name);
 /*
 	if((err = snd_pcm_open(&capture_handle, hw, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
 		fprintf(stderr, "[ERROR:] cannot open audio device (%s)\n", snd_strerror(err));
@@ -52,5 +58,6 @@ int captureSetUp(snd_pcm_t *capture_handle, capHW const &hw); {
 		exit(1);
 	}
 
-	*/
+	
 }
+*/
