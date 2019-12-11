@@ -1,3 +1,5 @@
+#include <alsa/asoundlib.h>
+
 #ifndef CAPTURE_H
 #define CAPTURE_H 
 
@@ -8,10 +10,12 @@ typedef struct {
 	unsigned channels;
 } capHW;
 
-static capHW hw;
+capHW hw;
+int err;
 
 void loadCapSettings(const char name[], const unsigned sr, const unsigned c);
 
-// int captureSetUp(snd_pcm_t *capture_handle);
+snd_pcm_t * captureSetUp();
+int capture(snd_pcm_t *h, short *b, const size_t f);
 
 #endif

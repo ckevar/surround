@@ -1,17 +1,19 @@
+#include <string.h>
+
 #include "capture.h"
 
-void loadSettings(const char name[], const unsigned sr, const unsigned c){
-	strcpy(hw.name, name, 10);
+void loadCapSettings(const char name[], const unsigned sr, const unsigned c){
+	strcpy(hw.name, name);
 	hw.samplerate = sr;
-	hw.channel = c;
+	hw.channels = c;
 }
-/*
-int captureSetUp(snd_pcm_t *capture_handle); {
-	int err;
+
+snd_pcm_t * captureSetUp() {
+
 	snd_pcm_hw_params_t *hw_params;
-	printf("HW: %s\n", hw.name);
-/*
-	if((err = snd_pcm_open(&capture_handle, hw, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
+	static snd_pcm_t *capture_handle;
+
+	if((err = snd_pcm_open(&capture_handle, hw.name, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
 		fprintf(stderr, "[ERROR:] cannot open audio device (%s)\n", snd_strerror(err));
 		exit(1);
 	}
@@ -36,12 +38,12 @@ int captureSetUp(snd_pcm_t *capture_handle); {
 		exit(1);
 	}
 
-	if ((err = snd_pcm_hw_params_set_rate_near (capture_handle, hw_params, &samplerate, 0)) < 0) {
+	if ((err = snd_pcm_hw_params_set_rate_near (capture_handle, hw_params, &hw.samplerate, 0)) < 0) {
 		fprintf(stderr, "[ERROR:] cannot set sample rate (%s)\n", snd_strerror(err));
 		exit(1);
 	}
 
-	if((err = snd_pcm_hw_params_set_channels(capture_handle, hw_params, CHANNELS)) < 0) {
+	if((err = snd_pcm_hw_params_set_channels(capture_handle, hw_params, hw.channels)) < 0) {
 		fprintf(stderr, "[ERROR:] cannot set channel (%s)\n", snd_strerror(err));
 		exit(1);
 	}
@@ -58,6 +60,37 @@ int captureSetUp(snd_pcm_t *capture_handle); {
 		exit(1);
 	}
 
-	
+	return capture_handle;
 }
-*/
+
+int capture(snd_pcm_t *h, short *b, const size_t f) {
+	static snd_pcm_sframes_t res; 
+	size_t count = f;
+
+	while (count > 0) {
+		res = snd_pcm_readi(h, b, count);
+
+		if(res == -EAGAIN) {
+			fprintf(stderr, "[ERROR:] Try it again (%s)\n", snd_strerror(res));
+			// return 1;
+		}
+		else if (res == -EPIPE) {
+			fprintf(stderr, "[ERROR:] (%s)\n", snd_strerror(res));
+			// return 1;
+		}	
+		else if (res == -ESTRPIPE) {
+			fprintf(stderr, "[ERROR:] (%s)\n", snd_strerror(res));
+			// return 1;
+		} else if (res < 0) {
+			fprintf(stderr, "[ERROR:] Unknown error (%s)\n", snd_strerror(res));
+			break;
+		}
+
+		if(res > 0) {
+			count -= res;
+			b += res*hw.channels;
+		}
+
+	}
+	return 0;
+}
