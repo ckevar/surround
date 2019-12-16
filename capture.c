@@ -14,7 +14,7 @@ snd_pcm_t * captureSetUp() {
 	static snd_pcm_t *capture_handle;
 
 	if((err = snd_pcm_open(&capture_handle, hw.name, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
-		fprintf(stderr, "[ERROR:] cannot open audio device (%s)\n", snd_strerror(err));
+		fprintf(stderr, "[ERROR:] cannot open audio device %s (%s)\n", hw.name, snd_strerror(err));
 		exit(1);
 	}
 
@@ -67,30 +67,30 @@ int capture(snd_pcm_t *h, short *b, const size_t f) {
 	static snd_pcm_sframes_t res; 
 	size_t count = f;
 
-	while (count > 0) {
+	// while (count > 0) {
 		res = snd_pcm_readi(h, b, count);
 
 		if(res == -EAGAIN) {
 			fprintf(stderr, "[ERROR:] Try it again (%s)\n", snd_strerror(res));
-			// return 1;
+			return -1;
 		}
 		else if (res == -EPIPE) {
 			fprintf(stderr, "[ERROR:] (%s)\n", snd_strerror(res));
-			// return 1;
+			return -1;
 		}	
 		else if (res == -ESTRPIPE) {
 			fprintf(stderr, "[ERROR:] (%s)\n", snd_strerror(res));
-			// return 1;
+			return -1;
 		} else if (res < 0) {
 			fprintf(stderr, "[ERROR:] Unknown error (%s)\n", snd_strerror(res));
-			break;
+			return -1;
 		}
 
 		if(res > 0) {
 			count -= res;
-			b += res*hw.channels;
+			// b += res * hw.channels;
 		}
 
-	}
-	return 0;
+	// }
+	return res;
 }
