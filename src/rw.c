@@ -1,7 +1,7 @@
 /*
  * file name: rw.c
- * created Jan 22, 2019 @ 4:20 PM
  * Author: ckevar 
+ * created Jan 22, 2019 at 4:20 PM
  */ 
 #include "rw.h"
 

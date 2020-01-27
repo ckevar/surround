@@ -7,8 +7,16 @@
 #define FILTER_H 
 
 #include "fcomplex.h"
+#include "definition.h"
 
-void loadFilters(complex *Hl, complex *Hr, complex *twiddle, short exp, unsigned short filterLenght);
-void filterAudio(complex *inOut, complex *fil, complex *twiddle, short exp, short *overlap, unsigned short m);
+// extern complex HSurroL[N];
+// extern complex HSurroR[N];
+// extern complex HFrontL[N];
+// extern complex HFrontR[N];
+
+void initFFT(short exp);
+void loadFiltersFront(complex *Hl, complex *Hr, short exp, unsigned short filterLenght);
+void loadFiltersSurr(complex *Hl, complex *Hr, short exp, unsigned short filterLenght);
+void filterAudio(complex *inOut, complex *fil, short exp, short *overlap, unsigned short m, unsigned char enable);
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * File Name: fcomplex.c
- * Created Jan 20, 10:35AM
  * Author: ckevar
+ * Created: Jan 20, 2020 at 10:35AM
  */
 #include "fcomplex.h"
 
@@ -9,7 +9,7 @@
 void double2complex(complex *cmplx, double *real, short sizeReal) {
 	unsigned short i;
 	for (i = 0; i < sizeReal; i++){
-		cmplx[i].re = real[i] * 2.5;
+		cmplx[i].re = real[i] * 2.2;	// multiply by a addditional gain to the filter
 		cmplx[i].im = 0.0;
 	}
 }

@@ -1,3 +1,9 @@
+/* 
+ * File Name: capture.c
+ * Author: ckevar
+ * Created: Dec 10, 2019 at 10:57AM
+ */
+
 #include <string.h>
 
 #include "capture.h"
@@ -67,30 +73,26 @@ int capture(snd_pcm_t *h, short *b, const size_t f) {
 	static snd_pcm_sframes_t res; 
 	size_t count = f;
 
-	// while (count > 0) {
-		res = snd_pcm_readi(h, b, count);
+	res = snd_pcm_readi(h, b, count);
 
-		if(res == -EAGAIN) {
-			fprintf(stderr, "[ERROR:] Try it again (%s)\n", snd_strerror(res));
-			return -1;
-		}
-		else if (res == -EPIPE) {
-			fprintf(stderr, "[ERROR:] (%s)\n", snd_strerror(res));
-			return -1;
-		}	
-		else if (res == -ESTRPIPE) {
-			fprintf(stderr, "[ERROR:] (%s)\n", snd_strerror(res));
-			return -1;
-		} else if (res < 0) {
-			fprintf(stderr, "[ERROR:] Unknown error (%s)\n", snd_strerror(res));
-			return -1;
-		}
+	if(res == -EAGAIN) {
+		// fprintf(stderr, "[ERROR:] Try it again (%s)\n", snd_strerror(res));
+		return -EAGAIN;
+	}
+	else if (res == -EPIPE) {
+		// fprintf(stderr, "[ERROR:] (%s)\n", snd_strerror(res));
+		return -EPIPE;
+	}	
+	else if (res == -ESTRPIPE) {
+		// fprintf(stderr, "[ERROR:] (%s)\n", snd_strerror(res));
+		return -ESTRPIPE;
+	} else if (res < 0) {
+		// fprintf(stderr, "[ERROR:] Unknown error (%s)\n", snd_strerror(res));
+		return -1;
+	}
 
-		if(res > 0) {
-			count -= res;
-			// b += res * hw.channels;
-		}
+	if(res > 0) 
+		count -= res;
 
-	// }
 	return res;
 }

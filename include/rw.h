@@ -1,7 +1,7 @@
 /* 
  * file name: rw.h
- * Created Jan 22, 2020 @ 3:35PM
  * Author: ckevar
+ * Created: Jan 22, 2020 at 3:35PM
  */
 
 #ifndef RW_H

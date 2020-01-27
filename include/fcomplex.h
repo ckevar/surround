@@ -1,8 +1,8 @@
 /*
  * 	File name: fcomplex.h
- * 	From the book: "Real-Time Digital Signal Processing Implementation and Application, 2nd Ed" by Sen et al.
- * 	Created: Jan 16, 9:54 PM
- * 	Author: ckevarBased on "Real time 
+ * 	Created: Jan 16, 2020 at 9:54 PM
+ * 	Author: ckevar 
+ * 	Reference: "Real-Time Digital Signal Processing Implementation and Application, 2nd Ed" by Sen et al.
  */
 
 #ifndef F_COMPLEX_H

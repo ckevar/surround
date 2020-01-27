@@ -1,3 +1,9 @@
+/*
+ *	File Name: capture.h
+ *	Author: ckevar
+ *	Created: Dec 10, 2019 at 10:57 PM
+ */
+
 #include <alsa/asoundlib.h>
 
 #ifndef CAPTURE_H
