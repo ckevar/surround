@@ -11,7 +11,7 @@
 
 struct BufferSem {
 	sem_t m;
-	sem_t priv_r;
+	sem_t priv_r[2];
 	sem_t priv_w;
 
 	unsigned nr;
@@ -22,29 +22,16 @@ struct BufferSem {
 
 void bufferSem_init(struct  BufferSem *m_bSem);
 
-
-/*
- * GENERAL WRITE/READ BUFFER SEMAPHORES MANAGEMENT
-*/
-void buffer_wait_read(struct BufferSem *bs);
-void buffer_post_read(struct BufferSem *bs);
-void buffer_wait_write(struct BufferSem *bs);
-void buffer_post_write(struct BufferSem *bs);
-
 /*
  * INPUT BUFFER SEMAPHORES MANAGEMENT
  */
-void inBuffer_wait_read(struct BufferSem *bs);
 void inBuffer_post_read(struct BufferSem *bs);
-void inBuffer_wait_write(struct BufferSem *bs);
 void inBuffer_post_write(struct BufferSem *bs);
 
 /*
  * OUTPUT BUFFER SEMAPHORES MANAGEMENT
  */
-void outBuffer_wait_write(struct BufferSem *bs);
-void outBuffer_post_write(struct BufferSem *bs);
-void outBuffer_wait_read(struct BufferSem *bs);
 void outBuffer_post_read(struct BufferSem *bs);
+void outBuffer_post_write(struct BufferSem *bs);
 
 #endif

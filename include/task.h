@@ -27,7 +27,7 @@ extern unsigned short exitLoop;
 extern unsigned char toggle;
 
 // Functions
-void initAlsa(const char *capDevName, const char* pbDevName, const unsigned fq, const unsigned c, const unsigned f);
+void initAlsa(const char *dev_name[], const unsigned fq, const unsigned c, const unsigned f);
 void bufferSemInitAll();			// init semaphores
 
 void *filterThread(void *arg);

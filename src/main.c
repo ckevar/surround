@@ -23,7 +23,7 @@ complex HSurroL[N];			// filter at frequency domain
 complex HSurroR[N];			// filter at frequency domain
 complex HFrontL[N];			// filter at frequency domain
 complex HFrontR[N];			// filter at frequency domain
-short overlapLeft[L - 1];	// Overlap left		
+short overlapLeft[L - 1];	// Overlap left
 short overlapRight[L - 1];	// Overlap right
 unsigned char toggle = 0;	// to enable or disable the feature
 
@@ -47,20 +47,46 @@ void dataInit(dataType *dleft, dataType *dright){
 	dright->overlap = overlapRight;
 }
 
+void selectMode(const char c){
+	
+	switch (c) {
+		case '\t' : toggle++;
+					toggle = toggle % 3;
+					break;
+			
+		case 48	: toggle = 0;
+				  break;
 
-int main(int argc, char const *argv[]) {
+		case 49	: toggle = 1;
+				  break;
+
+		case 50	: toggle = 2;
+				  break;
+	}
+
+	toogleSelectorGui(toggle);
+
+}
+
+
+int main(int argc, char const *dev_names[]) {
 	pthread_t leftFilterId, rightFilterId;
 	pthread_t captureId, playbackId;
 	dataType dataLeft, dataRight;
 	char c;
 
+	if(argc < 3) {
+		fprintf(stderr, "[Error:] specify: \"bin/main <LOOPBACK DEVICE> <PLAYBACK DEVICE>\"\n\tLOOPBACK DEVICE: hw:<CARD>,<DEVICE> \n\tPLAYBACK DEVICE: hw:<CARD>,<DEVICE>\n");
+		return 1;
+	}
+
 	// Init Alsa devices
-	initAlsa(CAPTURE_DEVICE, PLAYBACK_DEVICE, FREQUENCY, CHANNELS, FRAMES);
+	initAlsa(dev_names, FREQUENCY, CHANNELS, FRAMES);
 
 	// creates a precomputed twiddle components
 	initFFT(EXP);
 
-	// cload filter at the domain time 
+	// cload filter at the domain time
 	loadFiltersFront(HFrontL, HFrontR, EXP, L);
 	loadFiltersSurr(HSurroR	, HSurroL, EXP, L);
 
@@ -71,9 +97,9 @@ int main(int argc, char const *argv[]) {
 	bufferSemInitAll();
 
 	// Init interface
-	initGui();
+	initGui(dev_names);
 
-	
+
 	// Init threads
 	pthread_create(&captureId, NULL, &captureThread, NULL);
 	usleep(1000);
@@ -81,15 +107,13 @@ int main(int argc, char const *argv[]) {
 	pthread_create(&rightFilterId, NULL, &filterThread, &dataRight); // thread for right channel
 	pthread_create(&playbackId, NULL, &playbackThread, NULL);
 
+
 	while(1) {
 		c = getch();
-		if (c == '\t') {
-			toggle++;
-			if (toggle == 3) toggle = 0;
-
-			toogleSelectorGui(toggle);
-		} else if (c == 'q' || exitLoop) break;
+		if (c == 'q' || exitLoop) break;
+		selectMode(c);
 	}
+
 	exitLoop = 1;
 
 	// wait threads
@@ -97,7 +121,7 @@ int main(int argc, char const *argv[]) {
 	pthread_join(leftFilterId, NULL);
 	pthread_join(rightFilterId, NULL);
 	pthread_join(playbackId, NULL);
-	
+
 	// -------------------------
 
 	kill_all_pcm();

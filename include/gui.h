@@ -17,7 +17,7 @@ int LEN_CONTAINER, POSX_CONTAINER;
 int LEN_SELECTOR, POSX0_SELECTOR, POSX1_SELECTOR, POSX2_SELECTOR; 
 int POSX_STEREO, POSX_FRONT, POSX_SURROUND; 
 
-void initGui();		// init interface
+void initGui(char const *dev_names[]);		// init interface
 void refreshGui();	// updates screen
 void killGui(); 	// deallocate used memory
 

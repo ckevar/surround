@@ -12,10 +12,6 @@
 #define FRAMES 		1024
 #define CHANNELS 	2
 
-// Alsa devices
-#define CAPTURE_DEVICE "hw:2,1"
-#define PLAYBACK_DEVICE "hw:0,0"
-
 // FFT params
 #define L 	256			// Filter length
 #define M 	769			// Data sample length

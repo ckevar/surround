@@ -10,14 +10,22 @@
 #include "capture.h"
 #include "playback.h"
 
+#include "latency.h"
+
 #include <semaphore.h>
 #include <pthread.h>
+// #include <sys/time.h>
 
 unsigned short exitLoop = 0;
 
-void initAlsa(const char *capDevName, const char* pbDevName, const unsigned fq, const unsigned c, const unsigned f) {
-	loadCapSettings(capDevName, fq, c);
-	loadPBSettings(pbDevName, fq, c, f);
+#ifdef MEASURE_LATENCY
+struct Latency m_latency;
+#endif
+//struct timeval start, end;	
+
+void initAlsa(const char *dev_name[], const unsigned fq, const unsigned c, const unsigned f) {
+	loadCapSettings(dev_name[1], fq, c);
+	loadPBSettings(dev_name[2], fq, c, f);
 
 	cHandle = captureSetUp();
 	pbHandle = playbackSetup();
@@ -31,6 +39,7 @@ void bufferSemInitAll() {
 void *filterThread(void *arg) {
 	dataType *data = arg;
 	unsigned short i, j, j0, jn;
+	unsigned short incrementor;
 	int tmpData;
 	if (data->offset) sem_post(&inBufferSem.priv_w);
 
@@ -38,7 +47,7 @@ void *filterThread(void *arg) {
 		i = data->offset;
 
 		// casting short to complex input
-		sem_wait(&inBufferSem.priv_r);
+		sem_wait(&inBufferSem.priv_r[i]);
 		tmpData = readData;
 		for (j = 0; j < tmpData; j++) {
 			data->X[j].re = bufRead[i];
@@ -47,6 +56,8 @@ void *filterThread(void *arg) {
 		}
 		inBuffer_post_read(&inBufferSem);
 		
+		// Complete with zeros if the data series isnt filling the buffer
+		// for filtering
 		for(j = j; j < N; j++) {
 			data->X[j].re = 0.0;
 			data->X[j].im = 0.0;
@@ -54,6 +65,7 @@ void *filterThread(void *arg) {
 
 		j0 = N - 1;
 		jn = j0 - tmpData;
+		incrementor = -1;
 
 		if (toggle == 1)
 			filterAudio(data->X, data->Hf, EXP, data->overlap, tmpData, 1);
@@ -61,20 +73,23 @@ void *filterThread(void *arg) {
 		else if (toggle == 2)
 			filterAudio(data->X, data->Hs, EXP, data->overlap, tmpData, 1);
 		
-		else if (toggle == 0) 
-			filterAudio(data->X, NULL, EXP, data->overlap, tmpData, 0);
-
+		else if(toggle == 0) {
+			j0 = 0; 
+			jn = tmpData; 
+			incrementor = 1;
+		}
 
 		i = data->offset;
-
+		
 		// cast complex to output
 		sem_wait(&outBufferSem.priv_w);
-		for (j = j0; j > jn; --j) {
-			bufWrite[i] = data->X[j].re;
-			// if (data->X[j].re > 32767) printf("BIG\n");
-			// if (data->X[j].re < -32768) printf("SMALL\n");
+
+		while(j0 != jn) {
+			bufWrite[i] = data->X[j0].re;
 			i += 2;
+			j0 += incrementor;
 		}
+
 		writeData = tmpData;
 		outBuffer_post_write(&outBufferSem);
 
@@ -89,6 +104,11 @@ void *captureThread(void *arg) {
 	
 	while (1) {
 		sem_wait(&inBufferSem.priv_w);
+
+		#ifdef MEASURE_LATENCY
+		gettimeofday(&m_latency.start, NULL);
+		#endif
+
 		readData = capture(cHandle, bufRead, M);
 		inBuffer_post_write(&inBufferSem);
 
@@ -100,21 +120,29 @@ void *captureThread(void *arg) {
 }
 
 void *playbackThread(void *arg) {
-	// struct timeval start, end;	
+
+	#ifdef MEASURE_LATENCY
+	initLatencyBuffer(&m_latency);
+	#endif
+
 	outBuffer_post_read(&outBufferSem);
-	// gettimeofday(&start, NULL);
 
 	while (1) {
 		
-		sem_wait(&outBufferSem.priv_r);
+		sem_wait(outBufferSem.priv_r);
 		playback(pbHandle, bufWrite, writeData);
-		// gettimeofday(&end, NULL);
+
+		#ifdef MEASURE_LATENCY
+		gettimeofday(&m_latency.end, NULL);
+		#endif
+
 		outBuffer_post_read(&outBufferSem);
 
-		// long seconds = (end.tv_sec - start.tv_sec);
-		// long micros = (seconds*1000000 + end.tv_usec) - start.tv_usec;
-		// printf("17437.642 %ld\n", micros);
-		// start = end;
+		#ifdef MEASURE_LATENCY
+		computeLatency(&m_latency);
+		logLatency(&m_latency, (float)m_latency.micros/writeData);
+		#endif
+		
 		if (exitLoop) break;
 	}
 	pthread_exit(NULL);

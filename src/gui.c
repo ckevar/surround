@@ -29,16 +29,18 @@ void computeGeometricalParams(){
 	}
 }
 
-void placeText(){	
+void placeText(char const *dev_names[]){	
 	mvaddstr(0, COLS / 2 - 7, "Surround v0.0.1");
 	mvaddstr(LINES / 4, COLS / 2 - 9, "Use TAB to toggle");
-	mvaddstr(LINES / 2 + 3, POSX_STEREO, "Stereo");
-	mvaddstr(LINES / 2 + 3, POSX_FRONT, "Front");
-	mvaddstr(LINES / 2 + 3, POSX_SURROUND, "Surround");
+	mvaddstr(LINES / 2 + 3, POSX_STEREO, "0:Stereo");
+	mvaddstr(LINES / 2 + 3, POSX_FRONT, "1:Front");
+	mvaddstr(LINES / 2 + 3, POSX_SURROUND, "2:Surround");
 	mvaddstr(LINES - 2, COLS - 7, "q:quit");
+	mvaddstr(LINES - 2, 2, dev_names[1]);
+	mvaddstr(LINES - 2, 15, dev_names[2]);
 }
 
-void initGui(){
+void initGui(char const *dev_names[]){
 	initscr();
 	cbreak();
 	noecho();
@@ -63,7 +65,7 @@ void initGui(){
 	// stdscr features
 	bkgd(COLOR_PAIR(GUI_BACKGROUND));
 	box(stdscr, 0, 0);
-	placeText();
+	placeText(dev_names);
 	refresh();
 
 	// selector container features
