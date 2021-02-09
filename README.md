@@ -46,3 +46,13 @@ i.e.:
 $ bin/main hw:3,1 hw:1,0
 `
 
+
+# Compile with LATENCY MEASURE
+
+1. Run on terminal 
+
+` 
+$ make CFLAGS=-DMEASURE_LATENCY
+`
+
+When launch _bin/main_, it will create a _latency_micros.dat_ file with the average time spend for a certain number of samples read by alsa.
