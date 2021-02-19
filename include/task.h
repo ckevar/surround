@@ -34,5 +34,6 @@ void *filterThread(void *arg);
 void *captureThread(void *arg);
 void *playbackThread(void *arg);
 
+void terminateAlsa();
 
 #endif

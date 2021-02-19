@@ -124,20 +124,14 @@ int main(int argc, char const *dev_names[]) {
 
 	// -------------------------
 
-	kill_all_pcm();
+	terminateAlsa();
 	killGui();
 
 	return 0;
 }
 
-void kill_all_pcm(){
-	snd_pcm_close(cHandle);
-	assert(snd_pcm_drain(pbHandle) == 0);
-	snd_pcm_close(pbHandle);
-}
-
 void INT_handler(int sig) {
 	exitLoop = 1;
-	kill_all_pcm();
+	terminateAlsa();
 	exit(0);
 }

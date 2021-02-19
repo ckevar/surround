@@ -133,4 +133,3 @@ int playback(snd_pcm_t *h, short *b, const size_t f) {
 	}
 	return 0;
 }
-

@@ -18,9 +18,11 @@
 
 unsigned short exitLoop = 0;
 
+/*
 #ifdef MEASURE_LATENCY
 struct Latency m_latency;
 #endif
+*/
 //struct timeval start, end;	
 
 void initAlsa(const char *dev_name[], const unsigned fq, const unsigned c, const unsigned f) {
@@ -29,6 +31,13 @@ void initAlsa(const char *dev_name[], const unsigned fq, const unsigned c, const
 
 	cHandle = captureSetUp();
 	pbHandle = playbackSetup();
+}
+
+void terminateAlsa() {
+	snd_pcm_close(cHandle);
+
+	assert(snd_pcm_drain(pbHandle) == 0);
+	snd_pcm_close(pbHandle);
 }
 
 void bufferSemInitAll() {
@@ -105,9 +114,11 @@ void *captureThread(void *arg) {
 	while (1) {
 		sem_wait(&inBufferSem.priv_w);
 
+		/*
 		#ifdef MEASURE_LATENCY
 		gettimeofday(&m_latency.start, NULL);
 		#endif
+		*/
 
 		readData = capture(cHandle, bufRead, M);
 		inBuffer_post_write(&inBufferSem);
@@ -121,9 +132,11 @@ void *captureThread(void *arg) {
 
 void *playbackThread(void *arg) {
 
+	/*
 	#ifdef MEASURE_LATENCY
 	initLatencyBuffer(&m_latency);
 	#endif
+	*/
 
 	outBuffer_post_read(&outBufferSem);
 
@@ -132,17 +145,21 @@ void *playbackThread(void *arg) {
 		sem_wait(outBufferSem.priv_r);
 		playback(pbHandle, bufWrite, writeData);
 
+		/*
 		#ifdef MEASURE_LATENCY
 		gettimeofday(&m_latency.end, NULL);
 		#endif
+		*/
 
 		outBuffer_post_read(&outBufferSem);
 
+		/*
 		#ifdef MEASURE_LATENCY
 		computeLatency(&m_latency);
 		logLatency(&m_latency, (float)m_latency.micros/writeData);
 		#endif
-		
+		*/
+
 		if (exitLoop) break;
 	}
 	pthread_exit(NULL);
